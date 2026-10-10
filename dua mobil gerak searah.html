@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Simulasi Mobil A & B - Kejar-kejaran</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            margin: 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 36px;
+            padding: 24px 20px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+
+        h2 {
+            text-align: center;
+            color: #f1f5f9;
+            font-weight: 500;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+            margin-top: 0;
+            margin-bottom: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        h2 span {
+            background: #38bdf8;
+            color: #0f172a;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+        }
+
+        .tombol-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            color: #e2e8f0;
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            flex: 1 0 auto;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn i {
+            font-style: normal;
+            font-size: 1.2rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.active {
+            background: #38bdf8;
+            color: #0b1120;
+            border-color: #7dd3fc;
+            box-shadow: 0 0 15px #38bdf8aa, 0 8px 16px rgba(0, 0, 0, 0.5);
+            font-weight: 700;
+        }
+
+        .panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 20px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6), 0 8px 18px #00000030;
+            min-height: 240px;
+            transition: all 0.3s;
+            color: #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .soal-text, .penyelesaian-text {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .soal-text p, .penyelesaian-text p {
+            margin-bottom: 12px;
+        }
+
+        .soal-text strong, .penyelesaian-text strong {
+            color: #7dd3fc;
+        }
+
+        .penyelesaian-text .jawab {
+            background: #1e293b;
+            padding: 12px 14px;
+            border-radius: 20px;
+            margin: 14px 0;
+            border-left: 5px solid #38bdf8;
+        }
+
+        .jawab span {
+            font-weight: 700;
+            color: #facc15;
+        }
+
+        .rumus {
+            font-family: 'Courier New', monospace;
+            background: #0f172a;
+            padding: 4px 10px;
+            border-radius: 14px;
+            display: inline-block;
+            color: #a5f3fc;
+        }
+
+        /* Animasi container */
+        .animasi-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .canvas-wrapper {
+            width: 100%;
+            background: #0b1120;
+            border-radius: 20px;
+            padding: 10px 0;
+            border: 1px solid #334155;
+            box-shadow: inset 0 0 30px #00000050;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            margin: 0 auto;
+            border-radius: 12px;
+        }
+
+        .jalan-garis {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            padding: 0 12px;
+            margin-top: 4px;
+        }
+
+        .tombol-animasi-kecil {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-kecil {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 4px 8px #00000040;
+        }
+
+        .btn-kecil:hover {
+            background: #334155;
+            color: white;
+            border-color: #38bdf8;
+        }
+
+        .btn-kecil:active {
+            transform: scale(0.96);
+        }
+
+        .btn-kecil:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* layar kecil */
+        @media (max-width: 400px) {
+            .card {
+                padding: 18px 12px;
+                border-radius: 28px;
+            }
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            .panel {
+                padding: 16px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>
+            🚗 Mobil A & B 
+            <span>kejar</span>
+        </h2>
+
+        <!-- Tiga tombol utama -->
+        <div class="tombol-group">
+            <button class="btn" id="btnSoal"><i>📋</i> Soal</button>
+            <button class="btn" id="btnPenyelesaian"><i>🧮</i> Penyelesaian</button>
+            <button class="btn active" id="btnAnimasi"><i>🎬</i> Animasi</button>
+        </div>
+
+        <!-- Panel konten utama -->
+        <div class="panel" id="panelKonten">
+            <!-- Default: animasi (karena tombol animasi active) -->
+            <div id="animasiContent" class="animasi-container">
+                <div class="canvas-wrapper">
+                    <canvas id="canvasMobil" width="500" height="150"></canvas>
+                </div>
+                <div class="jalan-garis">
+                    <span>0 m</span>
+                    <span>100 m</span>
+                    <span>200 m</span>
+                    <span>300 m</span>
+                    <span>400 m</span>
+                </div>
+                <div class="tombol-animasi-kecil">
+                    <button class="btn-kecil" id="btnMulai">▶ Mulai</button>
+                    <button class="btn-kecil" id="btnReset">⟲ Reset</button>
+                </div>
+                <div style="font-size: 0.85rem; color: #94a3b8; text-align: center; margin-top: 4px;">
+                    Mobil A (biru) mengejar Mobil B (merah)
+                </div>
+            </div>
+
+            <!-- Soal (disembunyikan) -->
+            <div id="soalContent" style="display: none;" class="soal-text">
+                <p><strong>📌 Soal:</strong></p>
+                <p>Dua mobil A dan B mula-mula berjarak <strong>300 m</strong>, dengan mobil B berada di depan mobil A. Pada saat yang bersamaan, keduanya mulai bergerak searah di jalan lurus dengan kecepatan tetap.</p>
+                <p>Kecepatan mobil A = <strong>20 m/s</strong>, mobil B = <strong>15 m/s</strong>.</p>
+                <p>Tentukan:</p>
+                <p>a. Kapan mobil A menyusul mobil B?</p>
+                <p>b. Di mana kedua mobil bertemu, diukur dari posisi awal mobil A?</p>
+                <hr style="border-color: #334155; margin: 14px 0;">
+                <p style="font-size: 0.9rem; color: #94a3b8;">💡 Gunakan tombol "Penyelesaian" untuk melihat jawaban, atau "Animasi" untuk simulasi visual.</p>
+            </div>
+
+            <!-- Penyelesaian (disembunyikan) -->
+            <div id="penyelesaianContent" style="display: none;" class="penyelesaian-text">
+                <p><strong>🧮 Penyelesaian:</strong></p>
+                <p>▪ Posisi awal: mobil A di <strong>x = 0</strong>, mobil B di <strong>x = 300 m</strong>.</p>
+                <p>▪ Kecepatan: v<sub>A</sub> = 20 m/s, v<sub>B</sub> = 15 m/s.</p>
+                <p>▪ Syarat menyusul: posisi A = posisi B.</p>
+                <p class="rumus">x<sub>A</sub> = x<sub>B</sub></p>
+                <p class="rumus">0 + 20t = 300 + 15t</p>
+                <p class="rumus">20t - 15t = 300 → 5t = 300 → t = 60 s</p>
+                <div class="jawab">
+                    <p><strong>a. Waktu menyusul:</strong> <span>t = 60 sekon</span></p>
+                    <p><strong>b. Posisi bertemu (dari awal A):</strong> <span>x = 20 × 60 = 1200 m</span></p>
+                </div>
+                <p>Jadi, mobil A menyusul mobil B setelah <strong>60 detik</strong> pada jarak <strong>1200 m</strong> dari posisi awal mobil A.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // DOM elements
+            const btnSoal = document.getElementById('btnSoal');
+            const btnPenyelesaian = document.getElementById('btnPenyelesaian');
+            const btnAnimasi = document.getElementById('btnAnimasi');
+            
+            const panelSoal = document.getElementById('soalContent');
+            const panelPenyelesaian = document.getElementById('penyelesaianContent');
+            const panelAnimasi = document.getElementById('animasiContent');
+            
+            const btnMulai = document.getElementById('btnMulai');
+            const btnReset = document.getElementById('btnReset');
+            const canvas = document.getElementById('canvasMobil');
+            const ctx = canvas.getContext('2d');
+
+            // Variabel animasi
+            let animationId = null;
+            let waktu = 0;                 // dalam detik (simulasi)
+            let isAnimating = false;
+            const DURASI_SIMULASI = 65;     // kita tampilkan hingga 65 detik (sedikit lewat 60s)
+            const FPS = 30;                // frame per second
+            const INTERVAL = 1000 / FPS;   // ms per frame
+            let lastTimestamp = 0;
+            let deltaWaktu = 0;
+
+            // Parameter fisika
+            const X0_A = 0;        // meter
+            const X0_B = 300;      // meter
+            const V_A = 20;        // m/s
+            const V_B = 15;        // m/s
+            const WAKTU_TEMU = 60; // detik
+
+            // Skala visual: canvas 500px mewakili 0 - 1500 meter? 
+            // supaya titik temu 1200 m terlihat, kita pakai skala 500/1500 = 1/3 px per meter
+            // Kita batasi maksimum jarak 1500 m
+            const MAX_JARAK = 1500; // meter
+            const LEBAR_CANVAS = 500;
+            const SKALA = LEBAR_CANVAS / MAX_JARAK; // 0.333 px per meter
+
+            // Posisi vertikal mobil di canvas
+            const Y_A = 45;   // mobil A (biru) di atas
+            const Y_B = 95;   // mobil B (merah) di bawah
+            const TINGGI_MOBIL = 22;
+            const LEBAR_MOBIL = 38;
+
+            // ========== FUNGSI MENGGAMBAR ==========
+            function gambarCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Background jalan
+                ctx.fillStyle = '#0b1120';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Gambar garis tengah putus-putus (sebagai pembatas)
+                ctx.beginPath();
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 12]);
+                ctx.beginPath();
+                ctx.moveTo(0, 75);
+                ctx.lineTo(canvas.width, 75);
+                ctx.stroke();
+                ctx.setLineDash([]); // reset
+
+                // Gambar garis skala 0, 300, 600, 900, 1200, 1500 (setiap 300m)
+                ctx.font = '9px "Segoe UI", monospace';
+                ctx.fillStyle = '#64748b';
+                ctx.textAlign = 'center';
+                for (let meter = 0; meter <= MAX_JARAK; meter += 300) {
+                    const x = meter * SKALA;
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#475569';
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, 8);
+                    ctx.stroke();
+                    ctx.fillText(meter + 'm', x, 20);
+                }
+
+                // Hitung posisi mobil berdasarkan waktu (simulasi)
+                let xA_meter = X0_A + V_A * waktu;
+                let xB_meter = X0_B + V_B * waktu;
+                
+                // Batasi agar tidak melebihi max jarak
+                xA_meter = Math.min(xA_meter, MAX_JARAK);
+                xB_meter = Math.min(xB_meter, MAX_JARAK);
+
+                const xA_px = xA_meter * SKALA;
+                const xB_px = xB_meter * SKALA;
+
+                // --- Gambar GARIS dari posisi awal masing-masing (mengikuti gerakan) ---
+                // Garis dari posisi awal A (0 m) ke posisi A saat ini
+                ctx.beginPath();
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([4, 6]);
+                ctx.moveTo(X0_A * SKALA, Y_A + TINGGI_MOBIL/2);
+                ctx.lineTo(xA_px, Y_A + TINGGI_MOBIL/2);
+                ctx.stroke();
+                
+                // Garis dari posisi awal B (300 m) ke posisi B saat ini
+                ctx.beginPath();
+                ctx.strokeStyle = '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([4, 6]);
+                ctx.moveTo(X0_B * SKALA, Y_B + TINGGI_MOBIL/2);
+                ctx.lineTo(xB_px, Y_B + TINGGI_MOBIL/2);
+                ctx.stroke();
+                ctx.setLineDash([]); // reset
+
+                // --- Gambar mobil A (biru) ---
+                // badan mobil
+                ctx.fillStyle = '#3b82f6';
+                ctx.shadowColor = '#3b82f6aa';
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.roundRect(xA_px - LEBAR_MOBIL/2, Y_A, LEBAR_MOBIL, TINGGI_MOBIL, 6);
+                ctx.fill();
+                // kaca
+                ctx.fillStyle = '#bfdbfe';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.roundRect(xA_px - LEBAR_MOBIL/2 + 4, Y_A + 3, 10, 8, 3);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.roundRect(xA_px + 4, Y_A + 3, 10, 8, 3);
+                ctx.fill();
+                // roda
+                ctx.fillStyle = '#1e293b';
+                ctx.shadowBlur = 4;
+                ctx.beginPath();
+                ctx.arc(xA_px - 12, Y_A + TINGGI_MOBIL + 2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(xA_px + 12, Y_A + TINGGI_MOBIL + 2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // --- Gambar mobil B (merah) ---
+                ctx.fillStyle = '#ef4444';
+                ctx.shadowColor = '#ef4444aa';
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.roundRect(xB_px - LEBAR_MOBIL/2, Y_B, LEBAR_MOBIL, TINGGI_MOBIL, 6);
+                ctx.fill();
+                // kaca
+                ctx.fillStyle = '#fecaca';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.roundRect(xB_px - LEBAR_MOBIL/2 + 4, Y_B + 3, 10, 8, 3);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.roundRect(xB_px + 4, Y_B + 3, 10, 8, 3);
+                ctx.fill();
+                // roda
+                ctx.fillStyle = '#1e293b';
+                ctx.shadowBlur = 4;
+                ctx.beginPath();
+                ctx.arc(xB_px - 12, Y_B + TINGGI_MOBIL + 2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(xB_px + 12, Y_B + TINGGI_MOBIL + 2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Reset shadow
+                ctx.shadowBlur = 0;
+                ctx.shadowColor = 'transparent';
+
+                // Tampilkan waktu simulasi
+                ctx.font = 'bold 11px "Segoe UI"';
+                ctx.fillStyle = '#e2e8f0';
+                ctx.textAlign = 'right';
+                ctx.fillText(`t = ${waktu.toFixed(1)} s`, canvas.width - 15, 28);
+                
+                // Tampilkan jarak jika sudah menyusul?
+                if (waktu >= WAKTU_TEMU - 0.05) {
+                    ctx.font = 'bold 11px "Segoe UI"';
+                    ctx.fillStyle = '#facc15';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('✨ Bertemu!', 15, 28);
+                }
+
+                // Tanda posisi awal B (300 m) garis kecil
+                ctx.beginPath();
+                ctx.strokeStyle = '#f87171';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([2, 4]);
+                ctx.moveTo(300 * SKALA, 0);
+                ctx.lineTo(300 * SKALA, canvas.height);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Polyfill roundRect
+            if (!CanvasRenderingContext2D.prototype.roundRect) {
+                CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                    if (w < 2 * r) r = w / 2;
+                    if (h < 2 * r) r = h / 2;
+                    this.moveTo(x + r, y);
+                    this.lineTo(x + w - r, y);
+                    this.quadraticCurveTo(x + w, y, x + w, y + r);
+                    this.lineTo(x + w, y + h - r);
+                    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                    this.lineTo(x + r, y + h);
+                    this.quadraticCurveTo(x, y + h, x, y + h - r);
+                    this.lineTo(x, y + r);
+                    this.quadraticCurveTo(x, y, x + r, y);
+                    return this;
+                };
+            }
+
+            // ========== ANIMASI LOOP ==========
+            function animasiLoop(now) {
+                if (!isAnimating) return;
+
+                if (!lastTimestamp) lastTimestamp = now;
+                const deltaMs = now - lastTimestamp;
+                lastTimestamp = now;
+
+                // Update waktu simulasi (percepat 1.5x agar tidak terlalu lama)
+                waktu += (deltaMs / 1000) * 1.5; 
+
+                // Batasi hingga durasi maksimum
+                if (waktu >= DURASI_SIMULASI) {
+                    waktu = DURASI_SIMULASI;
+                    gambarCanvas();
+                    stopAnimasi();
+                    return;
+                }
+
+                gambarCanvas();
+                animationId = requestAnimationFrame(animasiLoop);
+            }
+
+            function startAnimasi() {
+                if (isAnimating) return;
+                // reset waktu jika sudah di akhir
+                if (waktu >= DURASI_SIMULASI) {
+                    waktu = 0;
+                }
+                isAnimating = true;
+                lastTimestamp = 0;
+                animationId = requestAnimationFrame(animasiLoop);
+                btnMulai.textContent = '⏸ Jeda';
+                btnMulai.disabled = false;
+            }
+
+            function stopAnimasi() {
+                isAnimating = false;
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                btnMulai.textContent = '▶ Mulai';
+                btnMulai.disabled = false;
+                gambarCanvas();
+            }
+
+            function resetAnimasi() {
+                stopAnimasi();
+                waktu = 0;
+                gambarCanvas();
+                btnMulai.textContent = '▶ Mulai';
+                btnMulai.disabled = false;
+            }
+
+            // ========== KONTROL TOMBOL PANEL ==========
+            function sembunyikanSemuaPanel() {
+                panelSoal.style.display = 'none';
+                panelPenyelesaian.style.display = 'none';
+                panelAnimasi.style.display = 'none';
+            }
+
+            function aktifkanTombol(btn) {
+                [btnSoal, btnPenyelesaian, btnAnimasi].forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            // Tampilkan Soal
+            btnSoal.addEventListener('click', () => {
+                sembunyikanSemuaPanel();
+                panelSoal.style.display = 'block';
+                aktifkanTombol(btnSoal);
+                // Jeda animasi jika sedang berjalan
+                if (isAnimating) {
+                    stopAnimasi();
+                }
+                // Reset tampilan tombol mulai
+                btnMulai.textContent = '▶ Mulai';
+            });
+
+            // Tampilkan Penyelesaian
+            btnPenyelesaian.addEventListener('click', () => {
+                sembunyikanSemuaPanel();
+                panelPenyelesaian.style.display = 'block';
+                aktifkanTombol(btnPenyelesaian);
+                if (isAnimating) {
+                    stopAnimasi();
+                }
+                btnMulai.textContent = '▶ Mulai';
+            });
+
+            // Tampilkan Animasi
+            btnAnimasi.addEventListener('click', () => {
+                sembunyikanSemuaPanel();
+                panelAnimasi.style.display = 'flex';
+                aktifkanTombol(btnAnimasi);
+                // Gambar ulang canvas
+                gambarCanvas();
+                // Pastikan tombol mulai siap
+                if (!isAnimating) {
+                    btnMulai.textContent = '▶ Mulai';
+                }
+            });
+
+            // Tombol Mulai / Jeda
+            btnMulai.addEventListener('click', () => {
+                if (isAnimating) {
+                    stopAnimasi();
+                } else {
+                    startAnimasi();
+                }
+            });
+
+            // Tombol Reset
+            btnReset.addEventListener('click', () => {
+                resetAnimasi();
+            });
+
+            // Inisialisasi awal: panel animasi tampil (sudah default), gambar canvas
+            // Tapi kita perlu pastikan panel animasi aktif
+            window.addEventListener('load', () => {
+                // Pastikan animasi yang terlihat
+                sembunyikanSemuaPanel();
+                panelAnimasi.style.display = 'flex';
+                aktifkanTombol(btnAnimasi);
+                resetAnimasi(); // waktu = 0, gambar
+            });
+
+            // Gambar ulang jika ukuran canvas berubah (optional)
+            // Deteksi resize untuk menjaga ketajaman? canvas sudah fixed width/height.
+            // Pastikan gambar ulang setiap resize window? tidak perlu.
+        })();
+    </script>
+</body>
+</html>
